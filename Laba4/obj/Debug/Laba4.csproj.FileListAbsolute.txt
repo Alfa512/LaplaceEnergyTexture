@@ -1,0 +1,21 @@
+F:\учеба\6 курс\КЗ\лабы\лаба1\КЗ1\Laba4\bin\Debug\Laba4.exe.config
+F:\учеба\6 курс\КЗ\лабы\лаба1\КЗ1\Laba4\obj\Debug\Laba4.csprojResolveAssemblyReference.cache
+F:\учеба\6 курс\КЗ\лабы\лаба1\КЗ1\Laba4\obj\Debug\Laba4.Form1.resources
+F:\учеба\6 курс\КЗ\лабы\лаба1\КЗ1\Laba4\obj\Debug\Laba4.Properties.Resources.resources
+F:\учеба\6 курс\КЗ\лабы\лаба1\КЗ1\Laba4\obj\Debug\Laba4.csproj.GenerateResource.Cache
+F:\учеба\6 курс\КЗ\лабы\лаба1\КЗ1\Laba4\bin\Debug\Laba4.exe
+F:\учеба\6 курс\КЗ\лабы\лаба1\КЗ1\Laba4\bin\Debug\Laba4.pdb
+F:\учеба\6 курс\КЗ\лабы\лаба1\КЗ1\Laba4\obj\Debug\Laba4.exe
+F:\учеба\6 курс\КЗ\лабы\лаба1\КЗ1\Laba4\obj\Debug\Laba4.pdb
+E:\ИТА ЮФУ\Магистратура\3-й Семестр\Компьютерное зрение\Лабораторные работы\лаба1\КЗ1\Laba4\bin\Debug\Laba4.exe.config
+E:\ИТА ЮФУ\Магистратура\3-й Семестр\Компьютерное зрение\Лабораторные работы\лаба1\КЗ1\Laba4\obj\Debug\Laba4.exe
+E:\ИТА ЮФУ\Магистратура\3-й Семестр\Компьютерное зрение\Лабораторные работы\лаба1\КЗ1\Laba4\obj\Debug\Laba4.pdb
+E:\ИТА ЮФУ\Магистратура\3-й Семестр\Компьютерное зрение\Лабораторные работы\лаба1\КЗ1\Laba4\bin\Debug\Laba4.exe
+E:\ИТА ЮФУ\Магистратура\3-й Семестр\Компьютерное зрение\Лабораторные работы\лаба1\КЗ1\Laba4\bin\Debug\Laba4.pdb
+E:\ИТА ЮФУ\Магистратура\3-й Семестр\Компьютерное зрение\Лабораторные работы\лаба1\КЗ1\Laba4\obj\Debug\Laba4.csprojResolveAssemblyReference.cache
+E:\ИТА ЮФУ\Магистратура\3-й Семестр\Компьютерное зрение\Лабораторные работы\лаба1\КЗ1\Laba4\obj\Debug\Laba4.Form1.resources
+E:\ИТА ЮФУ\Магистратура\3-й Семестр\Компьютерное зрение\Лабораторные работы\лаба1\КЗ1\Laba4\obj\Debug\Laba4.Properties.Resources.resources
+E:\ИТА ЮФУ\Магистратура\3-й Семестр\Компьютерное зрение\Лабораторные работы\лаба1\КЗ1\Laba4\obj\Debug\Laba4.csproj.GenerateResource.Cache
+C:\Source\Repos\LaplaceEnergyTexture\Laba4\bin\Debug\Laba4.exe.config
+C:\Source\Repos\LaplaceEnergyTexture\Laba4\obj\Debug\Laba4.exe
+C:\Source\Repos\LaplaceEnergyTexture\Laba4\obj\Debug\Laba4.pdb
