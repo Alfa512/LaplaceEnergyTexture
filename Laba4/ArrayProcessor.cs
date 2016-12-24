@@ -5,7 +5,6 @@ namespace LawsEnergyTexture
 {
     public unsafe struct ProcessTextureMapParams
     {
-        //public int[][,] EnergyMaps;
         public int[][,] FiltMass;
         public int StartHeight;
         public int EndHeight;
@@ -19,7 +18,6 @@ namespace LawsEnergyTexture
 
         public ProcessTextureMapParams(ProcessTextureMapParams parameters)
         {
-            //EnergyMaps = parameters.EnergyMaps;
             FiltMass = parameters.FiltMass;
             StartHeight = parameters.StartHeight;
             EndHeight = parameters.EndHeight;
@@ -31,9 +29,8 @@ namespace LawsEnergyTexture
             Mapf = parameters.Mapf;
             Maps = parameters.Maps;
         }
-        public ProcessTextureMapParams(/*int[][,] energyMaps, */int[][,] filtMass, int startHeight, int endHeight, int startWidth, int endWidth, int z, int* min, int* max, int mapf, int maps)
+        public ProcessTextureMapParams(int[][,] filtMass, int startHeight, int endHeight, int startWidth, int endWidth, int z, int* min, int* max, int mapf, int maps)
         {
-            //EnergyMaps = energyMaps;
             FiltMass = filtMass;
             StartHeight = startHeight;
             EndHeight = endHeight;
@@ -51,7 +48,7 @@ namespace LawsEnergyTexture
     {
 
 
-        int _threadCount = 2;
+        public int ThreadCount = 2;
         int[][,] _energyMaps;
         int[][,] _filtArray;
         int[,] _expanArray;
@@ -64,17 +61,17 @@ namespace LawsEnergyTexture
 
         public ArrayProcessor(int threadCount)
         {
-            _threadCount = threadCount;
+            ThreadCount = threadCount;
         }
 
         public void ProcessTextureMap(ref int[][,] energyMaps, int[][,] filtMass, int height, int width, int z, int* min, int* max, int mapf, int maps)
         {
-            Thread[] threads = new Thread[_threadCount];
+            Thread[] threads = new Thread[ThreadCount];
 
             string name = "ProcessTextureMap_";
             ProcessTextureMapParams parameters = new ProcessTextureMapParams(filtMass, 0, 0, height, width, z, min, max, mapf, maps);
             _energyMaps = energyMaps;
-            for (int i = 0; i < _threadCount; i++)
+            for (int i = 0; i < ThreadCount; i++)
             {
                 if (maps < 0)
                     threads[i] = new Thread(ProcessArrayU);
@@ -82,17 +79,15 @@ namespace LawsEnergyTexture
                     threads[i] = new Thread(ProcessArray);
                 threads[i].Name = name + i;
 
-                parameters.StartHeight = height / _threadCount * i;
-                parameters.EndHeight = height / _threadCount * i + height / _threadCount;
-                if (i + 1 == _threadCount && height % _threadCount > 0)
-                    parameters.EndHeight = height / _threadCount * i + height / _threadCount + height % _threadCount;
+                parameters.StartHeight = height / ThreadCount * i;
+                parameters.EndHeight = height / ThreadCount * i + height / ThreadCount;
+                if (i + 1 == ThreadCount && height % ThreadCount > 0)
+                    parameters.EndHeight = height / ThreadCount * i + height / ThreadCount + height % ThreadCount;
 
-                //parameters.StartWidth= width / _threadCount * i;
                 parameters.StartWidth = 0;
                 parameters.EndWidth = width;
-                //parameters.EndWidth= width / _threadCount * i + width / _threadCount;
-                if (i + 1 == _threadCount && width % _threadCount > 0)
-                    parameters.EndWidth = width / _threadCount * i + width / _threadCount + width % _threadCount;
+                if (i + 1 == ThreadCount && width % ThreadCount > 0)
+                    parameters.EndWidth = width / ThreadCount * i + width / ThreadCount + width % ThreadCount;
 
                 threads[i].Start(parameters);
             }
@@ -104,31 +99,25 @@ namespace LawsEnergyTexture
 
         public void ImageExpansionProcess(out int[,] expanMass, ref int[,] workMass, int ce, int height, int width)
         {
-            Thread[] threads = new Thread[_threadCount];
+            Thread[] threads = new Thread[ThreadCount];
 
             string name = "ProcessTextureMap_";
             ProcessTextureMapParams parameters = new ProcessTextureMapParams(null, 0, 0, height, width, ce, null, null, 0, 0);
-            //_expanArray = expanMass;
             _workArray = workMass;
-            for (int i = 0; i < _threadCount; i++)
+            for (int i = 0; i < ThreadCount; i++)
             {
-                //if (maps < 0)
                 threads[i] = new Thread(ImageExpansion);
-                //else
-                // threads[i] = new Thread(ProcessArray);
                 threads[i].Name = name + i;
 
-                parameters.StartHeight = height / _threadCount * i;
-                parameters.EndHeight = height / _threadCount * i + height / _threadCount;
-                if (i + 1 == _threadCount && height % _threadCount > 0)
-                    parameters.EndHeight = height / _threadCount * i + height / _threadCount + height % _threadCount;
+                parameters.StartHeight = height / ThreadCount * i;
+                parameters.EndHeight = height / ThreadCount * i + height / ThreadCount;
+                if (i + 1 == ThreadCount && height % ThreadCount > 0)
+                    parameters.EndHeight = height / ThreadCount * i + height / ThreadCount + height % ThreadCount;
 
-                //parameters.StartWidth= width / _threadCount * i;
                 parameters.StartWidth = 0;
                 parameters.EndWidth = width;
-                //parameters.EndWidth= width / _threadCount * i + width / _threadCount;
-                if (i + 1 == _threadCount && width % _threadCount > 0)
-                    parameters.EndWidth = width / _threadCount * i + width / _threadCount + width % _threadCount;
+                if (i + 1 == ThreadCount && width % ThreadCount > 0)
+                    parameters.EndWidth = width / ThreadCount * i + width / ThreadCount + width % ThreadCount;
 
                 threads[i].Start(parameters);
             }
@@ -138,28 +127,28 @@ namespace LawsEnergyTexture
             expanMass = _expanArray;
         }
 
-        public void PreHandlingProcess(int[,] expanArray, ref int[,] workMass, int ce, int height, int width) //int[,] expanMass, ref int[,] workMass, int ce, int height, int width
+        public void PreHandlingProcess(int[,] expanArray, ref int[,] workMass, int ce, int height, int width) 
         {
-            Thread[] threads = new Thread[_threadCount];
+            Thread[] threads = new Thread[ThreadCount];
 
             string name = "ProcessTextureMap_";
             ProcessTextureMapParams parameters = new ProcessTextureMapParams(null, 0, 0, height, width, ce, null, null, 0, 0);
             _expanArrayPre= expanArray;
             _workArrayPre = workMass;
-            for (int i = 0; i < _threadCount; i++)
+            for (int i = 0; i < ThreadCount; i++)
             {
                 threads[i] = new Thread(PreHandling);
                 threads[i].Name = name + i;
 
-                parameters.StartHeight = height / _threadCount * i;
-                parameters.EndHeight = height / _threadCount * i + height / _threadCount;
-                if (i + 1 == _threadCount && height % _threadCount > 0)
-                    parameters.EndHeight = height / _threadCount * i + height / _threadCount + height % _threadCount;
+                parameters.StartHeight = height / ThreadCount * i;
+                parameters.EndHeight = height / ThreadCount * i + height / ThreadCount;
+                if (i + 1 == ThreadCount && height % ThreadCount > 0)
+                    parameters.EndHeight = height / ThreadCount * i + height / ThreadCount + height % ThreadCount;
 
                 parameters.StartWidth = 0;
                 parameters.EndWidth = width;
-                if (i + 1 == _threadCount && width % _threadCount > 0)
-                    parameters.EndWidth = width / _threadCount * i + width / _threadCount + width % _threadCount;
+                if (i + 1 == ThreadCount && width % ThreadCount > 0)
+                    parameters.EndWidth = width / ThreadCount * i + width / ThreadCount + width % ThreadCount;
 
                 threads[i].Start(parameters);
             }
@@ -171,27 +160,27 @@ namespace LawsEnergyTexture
 
         public void FiltrationProcess(int[,] expanArrayFilter, ref int[][,] filt_mass, Matrix[] filters, int ce, int height, int width)
         {
-            Thread[] threads = new Thread[_threadCount];
+            Thread[] threads = new Thread[ThreadCount];
 
             string name = "ProcessTextureMap_";
             ProcessTextureMapParams parameters = new ProcessTextureMapParams(null, 0, 0, height, width, ce, null, null, 0, 0);
             _expanArrayFilter = expanArrayFilter;
             _filtArray= filt_mass;
             _filters = filters;
-            for (int i = 0; i < _threadCount; i++)
+            for (int i = 0; i < ThreadCount; i++)
             {
                 threads[i] = new Thread(Filtration);
                 threads[i].Name = name + i;
 
-                parameters.StartHeight = height / _threadCount * i;
-                parameters.EndHeight = height / _threadCount * i + height / _threadCount;
-                if (i + 1 == _threadCount && height % _threadCount > 0)
-                    parameters.EndHeight = height / _threadCount * i + height / _threadCount + height % _threadCount;
+                parameters.StartHeight = height / ThreadCount * i;
+                parameters.EndHeight = height / ThreadCount * i + height / ThreadCount;
+                if (i + 1 == ThreadCount && height % ThreadCount > 0)
+                    parameters.EndHeight = height / ThreadCount * i + height / ThreadCount + height % ThreadCount;
 
                 parameters.StartWidth = 0;
                 parameters.EndWidth = width;
-                if (i + 1 == _threadCount && width % _threadCount > 0)
-                    parameters.EndWidth = width / _threadCount * i + width / _threadCount + width % _threadCount;
+                if (i + 1 == ThreadCount && width % ThreadCount > 0)
+                    parameters.EndWidth = width / ThreadCount * i + width / ThreadCount + width % ThreadCount;
 
                 threads[i].Start(parameters);
             }
@@ -203,26 +192,26 @@ namespace LawsEnergyTexture
 
         public void TextureMapProcess(int[,] expanArrayFilter, ref int[][,] filtMass, int z, int ce, int height, int width)
         {
-            Thread[] threads = new Thread[_threadCount];
+            Thread[] threads = new Thread[ThreadCount];
 
             string name = "ProcessTextureMap_";
             ProcessTextureMapParams parameters = new ProcessTextureMapParams(null, 0, 0, height, width, z, null, null, ce, 0);
             _expanArrayFilter = expanArrayFilter;
             _filtArray= filtMass;
-            for (int i = 0; i < _threadCount; i++)
+            for (int i = 0; i < ThreadCount; i++)
             {
                 threads[i] = new Thread(TextureMap);
                 threads[i].Name = name + i;
 
-                parameters.StartHeight = height / _threadCount * i;
-                parameters.EndHeight = height / _threadCount * i + height / _threadCount;
-                if (i + 1 == _threadCount && height % _threadCount > 0)
-                    parameters.EndHeight = height / _threadCount * i + height / _threadCount + height % _threadCount;
+                parameters.StartHeight = height / ThreadCount * i;
+                parameters.EndHeight = height / ThreadCount * i + height / ThreadCount;
+                if (i + 1 == ThreadCount && height % ThreadCount > 0)
+                    parameters.EndHeight = height / ThreadCount * i + height / ThreadCount + height % ThreadCount;
 
                 parameters.StartWidth = 0;
                 parameters.EndWidth = width;
-                if (i + 1 == _threadCount && width % _threadCount > 0)
-                    parameters.EndWidth = width / _threadCount * i + width / _threadCount + width % _threadCount;
+                if (i + 1 == ThreadCount && width % ThreadCount > 0)
+                    parameters.EndWidth = width / ThreadCount * i + width / ThreadCount + width % ThreadCount;
 
                 threads[i].Start(parameters);
             }
@@ -262,32 +251,26 @@ namespace LawsEnergyTexture
 
         }
 
-        //искуственное расширение для фильтра
         void ImageExpansion(object parameters)
         {
             var data = new ProcessTextureMapParams((ProcessTextureMapParams)parameters);
             _expanArray = new int[data.EndHeight + (data.Z << 1), data.EndWidth + (data.Z << 1)];
-            //переписываем из массива
             for (int i = data.StartWidth; i < data.EndWidth; i++)
                 for (int j = data.StartHeight; j < data.EndHeight; j++)
                 {
-                    //для массива
                     _expanArray[j + data.Z, i + data.Z] = _workArray[j, i];
-                    //если края - расширяем на массив
                     if (i == data.StartWidth)
                     {
                         for (int z = 0; z < data.Z; z++)
                             _expanArray[j + data.Z, i + z] = _workArray[j, i];
                         if (j == data.StartHeight)
                         {
-                            //+ угол левый верхний
                             for (int z = 0; z < data.Z; z++)
                                 for (int x = 0; x < data.Z; x++)
                                     _expanArray[j + x, i + z] = _workArray[j, i];
                         }
                         if (j == data.EndHeight - 1)
                         {
-                            //+ угол левый нижний
                             for (int z = 0; z < data.Z; z++)
                                 for (int x = 1; x <= data.Z; x++)
                                     _expanArray[j + data.Z + x, i + z] = _workArray[j, i];
@@ -299,14 +282,12 @@ namespace LawsEnergyTexture
                             _expanArray[j + data.Z, i + data.Z + z] = _workArray[j, i];
                         if (j == data.StartHeight)
                         {
-                            //+ угол правый верхний
                             for (int z = 1; z <= data.Z; z++)
                                 for (int x = 0; x < data.Z; x++)
                                     _expanArray[j + x, i + data.Z + z] = _workArray[j, i];
                         }
                         if (j == data.EndHeight - 1)
                         {
-                            //+ угол правый нижний
                             for (int z = 1; z <= data.Z; z++)
                                 for (int x = 1; x <= data.Z; x++)
                                     _expanArray[j + data.Z + x, i + data.Z + z] = _workArray[j, i];
@@ -323,34 +304,27 @@ namespace LawsEnergyTexture
                             _expanArray[j + data.Z + z, i + data.Z] = _workArray[j, i];
                     }
                 }
-            //return expanMass;
         }
 
-        //искуственное расширение для фильтра
         public int[,] ImageExpansion(int[,] work_mass, int ce, int Height, int Width)
         {
             int[,] expanMass = new int[Height + (ce << 1), Width + (ce << 1)];
-            //переписываем из массива
             for (int i = 0; i < Width; i++)
                 for (int j = 0; j < Height; j++)
                 {
-                    //для массива
                     expanMass[j + ce, i + ce] = work_mass[j, i];
-                    //если края - расширяем на массив
                     if (i == 0)
                     {
                         for (int z = 0; z < ce; z++)
                             expanMass[j + ce, i + z] = work_mass[j, i];
                         if (j == 0)
                         {
-                            //+ угол левый верхний
                             for (int z = 0; z < ce; z++)
                                 for (int x = 0; x < ce; x++)
                                     expanMass[j + x, i + z] = work_mass[j, i];
                         }
                         if (j == Height - 1)
                         {
-                            //+ угол левый нижний
                             for (int z = 0; z < ce; z++)
                                 for (int x = 1; x <= ce; x++)
                                     expanMass[j + ce + x, i + z] = work_mass[j, i];
@@ -362,14 +336,12 @@ namespace LawsEnergyTexture
                             expanMass[j + ce, i + ce + z] = work_mass[j, i];
                         if (j == 0)
                         {
-                            //+ угол правый верхний
                             for (int z = 1; z <= ce; z++)
                                 for (int x = 0; x < ce; x++)
                                     expanMass[j + x, i + ce + z] = work_mass[j, i];
                         }
                         if (j == Height - 1)
                         {
-                            //+ угол правый нижний
                             for (int z = 1; z <= ce; z++)
                                 for (int x = 1; x <= ce; x++)
                                     expanMass[j + ce + x, i + ce + z] = work_mass[j, i];

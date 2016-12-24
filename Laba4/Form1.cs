@@ -12,23 +12,21 @@ namespace LawsEnergyTexture
             InitializeComponent();
         }
 
-        //загрузка изображения
         private void button1_Click(object sender, EventArgs e)
         {
-            //диалог открытия
             openFileDialog1.ShowDialog();
             try
             {
-                //данные изображения
                 LawsEnergy.Init(openFileDialog1.FileName);
-                //вывод для пользователя
+                var threads = Convert.ToInt32(threadCount.Text);
+                LawsEnergy.SetThreads(threads > 0 ? threads : 2);
+
                 pictureBox1.Image = Image.FromFile(openFileDialog1.FileName);
                 button3.Enabled = true;
             }
             catch { }
         }
 
-        //выход
         private void button2_Click(object sender, EventArgs e)
         {
             this.Close();
@@ -36,30 +34,33 @@ namespace LawsEnergyTexture
 
         private void button3_Click(object sender, EventArgs e)
         {
+            var threads = Convert.ToInt32(threadCount.Text);
+            LawsEnergy.SetThreads(threads > 0 ? threads : 2);
             Stopwatch timer = new Stopwatch();
             timer.Start();
-            LawsEnergy.Сalculation();
+            LawsEnergy.Processing();
             timer.Stop();
-            timingLbl.Text = timer.ElapsedMilliseconds.ToString();
-            //вывод для пользователя
+            timingLbl.Text = timer.ElapsedMilliseconds + " ms";
             pictureBox1.Image = LawsEnergy.Image;
-            button4.Enabled = true;
         }
 
-        private void button4_Click(object sender, EventArgs e)
+
+        private void radioButton1_CheckedChanged(object sender, EventArgs e)
         {
-            //вывод для пользователя
+            pictureBox1.Image = LawsEnergy.Image;
+        }
+
+        private void radioButton2_CheckedChanged(object sender, EventArgs e)
+        {
             pictureBox1.Image = LawsEnergy.Temp_image;
-            button4.Visible = false;
-            button5.Visible = true;
         }
 
-        private void button5_Click(object sender, EventArgs e)
+        private void Form1_Resize(object sender, System.EventArgs e)
         {
-            //вывод для пользователя
-            pictureBox1.Image = LawsEnergy.Image;
-            button5.Visible = false;
-            button4.Visible = true;
+            Control control = (Control)sender;
+
+            pictureBox1.Height = control.Height - groupBox2.Height - 60;
+            pictureBox1.Width = control.Width - 40;
         }
     }
 }
