@@ -109,10 +109,10 @@ namespace LaplaceEnergyTexture
             timer.Start();
             int[,] exp_mass = _arrayProcessor.ImageExpansion(work_mass, ce, Height, Width);
             timer.Stop();
-            //_arrayProcessor.ProcessImageExpansion(out exp_mass, ref work_mass, ce, Height, Width);
+            //_arrayProcessor.ImageExpansionProcess(out exp_mass, ref work_mass, ce, Height, Width);
 
             //предварительная обработка
-            _arrayProcessor.ProcessPreHandling(exp_mass, ref work_mass, ce, Height, Width);
+            _arrayProcessor.PreHandlingProcess(exp_mass, ref work_mass, ce, Height, Width);
             /*for (int i = 0; i < Height; i++)
                 for (int j = 0; j < Width; j++)
                 {
@@ -126,25 +126,25 @@ namespace LaplaceEnergyTexture
             ce = 2;
             //расширение
             //exp_mass = ImageExpansion(work_mass, ce);
-            //_arrayProcessor.ProcessImageExpansion(out exp_mass, ref work_mass, ce, Height, Width);
+            //_arrayProcessor.ImageExpansionProcess(out exp_mass, ref work_mass, ce, Height, Width);
             timer.Start();
             exp_mass = _arrayProcessor.ImageExpansion(work_mass, ce, Height, Width);
             timer.Stop();
             //фильтрация
-            for (int i = 0; i < Height; i++)
+            /*for (int i = 0; i < Height; i++)
                 for (int j = 0; j < Width ; j++)
                     for (int z = 0; z < 15; z++)
                     {
                         filt_mass[z][i, j] = filters[z + 1].FindeValue(exp_mass, j + ce, i + ce);
-                    }
-
+                    }*/
+            _arrayProcessor.FiltrationProcess(exp_mass, ref filt_mass, filters, ce, Height, Width);
             ce = 7;
             //текстурные карты
             for (int z = 0; z < 15; z++)
             {
                 //расширение для каждой
                 //exp_mass = ImageExpansion(filt_mass[z], ce);
-                //_arrayProcessor.ProcessImageExpansion(out exp_mass, ref filt_mass[z], ce, Height, Width);
+                //_arrayProcessor.ImageExpansionProcess(out exp_mass, ref filt_mass[z], ce, Height, Width);
                 timer.Start();
                 exp_mass = _arrayProcessor.ImageExpansion(work_mass, ce, Height, Width);
                 timer.Stop();

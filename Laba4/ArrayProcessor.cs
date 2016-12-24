@@ -52,10 +52,13 @@ namespace LaplaceEnergyTexture
 
         int _threadCount = 2;
         int[][,] _energyMaps;
-        int[,] _expanMass;
-        int[,] _expanMassPre;
-        int[,] _workMass;
-        int[,] _workMassPre;
+        int[][,] _filtArray;
+        int[,] _expanArray;
+        int[,] _expanArrayFilter;
+        int[,] _expanArrayPre;
+        int[,] _workArray;
+        int[,] _workArrayPre;
+        Matrix[] _filters;
 
 
         public ArrayProcessor(int threadCount)
@@ -98,14 +101,14 @@ namespace LaplaceEnergyTexture
             energyMaps = _energyMaps;
         }
 
-        public void ProcessImageExpansion(out int[,] expanMass, ref int[,] workMass, int ce, int height, int width)
+        public void ImageExpansionProcess(out int[,] expanMass, ref int[,] workMass, int ce, int height, int width)
         {
             Thread[] threads = new Thread[_threadCount];
 
             string name = "ProcessTextureMap_";
             ProcessTextureMapParams parameters = new ProcessTextureMapParams(null, 0, 0, height, width, ce, null, null, 0, 0);
-            //_expanMass = expanMass;
-            _workMass = workMass;
+            //_expanArray = expanMass;
+            _workArray = workMass;
             for (int i = 0; i < _threadCount; i++)
             {
                 //if (maps < 0)
@@ -131,17 +134,17 @@ namespace LaplaceEnergyTexture
             foreach (var e in threads)
                 e.Join();
 
-            expanMass = _expanMass;
+            expanMass = _expanArray;
         }
 
-        public void ProcessPreHandling(int[,] expanMass, ref int[,] workMass, int ce, int height, int width)
+        public void PreHandlingProcess(int[,] expanArray, ref int[,] workMass, int ce, int height, int width) //int[,] expanMass, ref int[,] workMass, int ce, int height, int width
         {
             Thread[] threads = new Thread[_threadCount];
 
             string name = "ProcessTextureMap_";
             ProcessTextureMapParams parameters = new ProcessTextureMapParams(null, 0, 0, height, width, ce, null, null, 0, 0);
-            _expanMassPre = expanMass;
-            _workMassPre = workMass;
+            _expanArrayPre= expanArray;
+            _workArrayPre = workMass;
             for (int i = 0; i < _threadCount; i++)
             {
                 threads[i] = new Thread(PreHandling);
@@ -162,19 +165,20 @@ namespace LaplaceEnergyTexture
             foreach (var e in threads)
                 e.Join();
 
-            workMass = _workMassPre;
+            workMass = _workArrayPre;
         }
-        public void ProcessFiltration(int[,] expanMass, ref int[,] workMass, int ce, int height, int width)
+        public void FiltrationProcess(int[,] expanArrayFilter, ref int[][,] filt_mass, Matrix[] filters, int ce, int height, int width)
         {
             Thread[] threads = new Thread[_threadCount];
 
             string name = "ProcessTextureMap_";
             ProcessTextureMapParams parameters = new ProcessTextureMapParams(null, 0, 0, height, width, ce, null, null, 0, 0);
-            _expanMassPre = expanMass;
-            _workMassPre = workMass;
+            _expanArrayFilter = expanArrayFilter;
+            _filtArray= filt_mass;
+            _filters = filters;
             for (int i = 0; i < _threadCount; i++)
             {
-                threads[i] = new Thread(PreHandling);
+                threads[i] = new Thread(Filtration);
                 threads[i].Name = name + i;
 
                 parameters.StartHeight = height / _threadCount * i;
@@ -192,7 +196,7 @@ namespace LaplaceEnergyTexture
             foreach (var e in threads)
                 e.Join();
 
-            workMass = _workMassPre;
+            filt_mass = _filtArray;
         }
 
         void ProcessArray(object parameters)
@@ -229,61 +233,61 @@ namespace LaplaceEnergyTexture
         void ImageExpansion(object parameters)
         {
             var data = new ProcessTextureMapParams((ProcessTextureMapParams)parameters);
-            _expanMass = new int[data.EndHeight + (data.Z << 1), data.EndWidth + (data.Z << 1)];
+            _expanArray = new int[data.EndHeight + (data.Z << 1), data.EndWidth + (data.Z << 1)];
             //переписываем из массива
             for (int i = data.StartWidth; i < data.EndWidth; i++)
                 for (int j = data.StartHeight; j < data.EndHeight; j++)
                 {
                     //для массива
-                    _expanMass[j + data.Z, i + data.Z] = _workMass[j, i];
+                    _expanArray[j + data.Z, i + data.Z] = _workArray[j, i];
                     //если края - расширяем на массив
                     if (i == data.StartWidth)
                     {
                         for (int z = 0; z < data.Z; z++)
-                            _expanMass[j + data.Z, i + z] = _workMass[j, i];
+                            _expanArray[j + data.Z, i + z] = _workArray[j, i];
                         if (j == data.StartHeight)
                         {
                             //+ угол левый верхний
                             for (int z = 0; z < data.Z; z++)
                                 for (int x = 0; x < data.Z; x++)
-                                    _expanMass[j + x, i + z] = _workMass[j, i];
+                                    _expanArray[j + x, i + z] = _workArray[j, i];
                         }
                         if (j == data.EndHeight - 1)
                         {
                             //+ угол левый нижний
                             for (int z = 0; z < data.Z; z++)
                                 for (int x = 1; x <= data.Z; x++)
-                                    _expanMass[j + data.Z + x, i + z] = _workMass[j, i];
+                                    _expanArray[j + data.Z + x, i + z] = _workArray[j, i];
                         }
                     }
                     if (i == data.EndWidth - 1)
                     {
                         for (int z = 1; z <= data.Z; z++)
-                            _expanMass[j + data.Z, i + data.Z + z] = _workMass[j, i];
+                            _expanArray[j + data.Z, i + data.Z + z] = _workArray[j, i];
                         if (j == data.StartHeight)
                         {
                             //+ угол правый верхний
                             for (int z = 1; z <= data.Z; z++)
                                 for (int x = 0; x < data.Z; x++)
-                                    _expanMass[j + x, i + data.Z + z] = _workMass[j, i];
+                                    _expanArray[j + x, i + data.Z + z] = _workArray[j, i];
                         }
                         if (j == data.EndHeight - 1)
                         {
                             //+ угол правый нижний
                             for (int z = 1; z <= data.Z; z++)
                                 for (int x = 1; x <= data.Z; x++)
-                                    _expanMass[j + data.Z + x, i + data.Z + z] = _workMass[j, i];
+                                    _expanArray[j + data.Z + x, i + data.Z + z] = _workArray[j, i];
                         }
                     }
                     if (j == data.StartHeight)
                     {
                         for (int z = 0; z < data.Z; z++)
-                            _expanMass[j + z, i + data.Z] = _workMass[j, i];
+                            _expanArray[j + z, i + data.Z] = _workArray[j, i];
                     }
                     if (j == data.EndHeight - 1)
                     {
                         for (int z = 1; z <= data.Z; z++)
-                            _expanMass[j + data.Z + z, i + data.Z] = _workMass[j, i];
+                            _expanArray[j + data.Z + z, i + data.Z] = _workArray[j, i];
                     }
                 }
             //return expanMass;
@@ -361,10 +365,20 @@ namespace LaplaceEnergyTexture
                     int sum = 0;
                     for (int y = -data.Z; y <= data.Z; y++)
                         for (int x = -data.Z; x <= data.Z; x++)
-                            sum += _expanMassPre[i + data.Z + y, j + data.Z + x];
+                            sum += _expanArrayPre[i + data.Z + y, j + data.Z + x];
                     sum /= 225;
-                    _workMassPre[i, j] -= sum;
+                    _workArrayPre[i, j] -= sum;
                 }
+        }
+        private void Filtration(object parameters)
+        {
+            var data = new ProcessTextureMapParams((ProcessTextureMapParams)parameters);
+            for (int i = data.StartHeight; i < data.EndHeight; i++)
+                for (int j = data.StartWidth; j < data.EndWidth; j++)
+                    for (int z = 0; z < 15; z++)
+                    {
+                        _filtArray[z][i, j] = _filters[z + 1].FindeValue(_expanArrayFilter, j + data.Z, i + data.Z);
+                    }
         }
 
 
