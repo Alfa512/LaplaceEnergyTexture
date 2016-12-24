@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 
 namespace LawsEnergyTexture
 {
@@ -167,6 +168,7 @@ namespace LawsEnergyTexture
 
             workMass = _workArrayPre;
         }
+
         public void FiltrationProcess(int[,] expanArrayFilter, ref int[][,] filt_mass, Matrix[] filters, int ce, int height, int width)
         {
             Thread[] threads = new Thread[_threadCount];
@@ -199,13 +201,44 @@ namespace LawsEnergyTexture
             filt_mass = _filtArray;
         }
 
+        public void TextureMapProcess(int[,] expanArrayFilter, ref int[][,] filtMass, int z, int ce, int height, int width)
+        {
+            Thread[] threads = new Thread[_threadCount];
+
+            string name = "ProcessTextureMap_";
+            ProcessTextureMapParams parameters = new ProcessTextureMapParams(null, 0, 0, height, width, z, null, null, ce, 0);
+            _expanArrayFilter = expanArrayFilter;
+            _filtArray= filtMass;
+            for (int i = 0; i < _threadCount; i++)
+            {
+                threads[i] = new Thread(TextureMap);
+                threads[i].Name = name + i;
+
+                parameters.StartHeight = height / _threadCount * i;
+                parameters.EndHeight = height / _threadCount * i + height / _threadCount;
+                if (i + 1 == _threadCount && height % _threadCount > 0)
+                    parameters.EndHeight = height / _threadCount * i + height / _threadCount + height % _threadCount;
+
+                parameters.StartWidth = 0;
+                parameters.EndWidth = width;
+                if (i + 1 == _threadCount && width % _threadCount > 0)
+                    parameters.EndWidth = width / _threadCount * i + width / _threadCount + width % _threadCount;
+
+                threads[i].Start(parameters);
+            }
+            foreach (var e in threads)
+                e.Join();
+
+            filtMass = _filtArray;
+        }
+
         void ProcessArray(object parameters)
         {
             var data = new ProcessTextureMapParams((ProcessTextureMapParams)parameters);
             for (int i = data.StartHeight; i < data.EndHeight; i++)
                 for (int j = data.StartWidth; j < data.EndWidth; j++)
                 {
-                    _energyMaps[data.Z][i, j] = (data.FiltMass[data.Mapf][i, j] + data.FiltMass[data.Maps][i, j]) / 2;
+                    _energyMaps[data.Z][i, j] = (data.FiltMass[data.Mapf][i, j] + (data.FiltMass[data.Maps][i, j]) >> 1);
                     if (_energyMaps[data.Z][i, j] < *data.Min)
                         *data.Min = _energyMaps[data.Z][i, j];
                     if (_energyMaps[data.Z][i, j] > *data.Max)
@@ -220,7 +253,7 @@ namespace LawsEnergyTexture
             for (int i = data.StartHeight; i < data.EndHeight; i++)
                 for (int j = data.StartWidth; j < data.EndWidth; j++)
                 {
-                    _energyMaps[data.Z][i, j] = (data.FiltMass[data.Mapf][i, j]) / 2;
+                    _energyMaps[data.Z][i, j] = (data.FiltMass[data.Mapf][i, j]) >> 1;
                     if (_energyMaps[data.Z][i, j] < *data.Min)
                         *data.Min = _energyMaps[data.Z][i, j];
                     if (_energyMaps[data.Z][i, j] > *data.Max)
@@ -370,6 +403,7 @@ namespace LawsEnergyTexture
                     _workArrayPre[i, j] -= sum;
                 }
         }
+
         private void Filtration(object parameters)
         {
             var data = new ProcessTextureMapParams((ProcessTextureMapParams)parameters);
@@ -381,7 +415,19 @@ namespace LawsEnergyTexture
                     }
         }
 
-
+        private void TextureMap(object parameters)
+        {
+            var data = new ProcessTextureMapParams((ProcessTextureMapParams)parameters);
+            for (int i = data.StartHeight; i < data.EndHeight; i++)
+                for (int j = data.StartWidth; j < data.EndWidth; j++)
+                {
+                    int sum = 0;
+                    for (int y = -data.Mapf; y <= data.Mapf; y++)
+                        for (int x = -data.Mapf; x <= data.Mapf; x++)
+                            sum += Math.Abs(_expanArrayFilter[i + data.Mapf + y, j + data.Mapf + x]);
+                    _filtArray[data.Z][i, j] = sum;
+                }
+        }
 
     }
 }

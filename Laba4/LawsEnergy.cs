@@ -11,7 +11,7 @@ namespace LawsEnergyTexture
     {
         static Stopwatch timer = new Stopwatch();
 
-        static int threads = 2;
+        static int threads = 6;
         static ArrayProcessor _arrayProcessor = new ArrayProcessor(threads);
         //рабочий массив    
         static int[,] work_mass;
@@ -81,7 +81,7 @@ namespace LawsEnergyTexture
             //фильтры НУЛЕВОЙ НЕ ИСПОЛЬЗУЕТСЯ!!!
             for (int i = 0; i < 4; i++)
                 for (int j = 0; j < 4; j++)
-			        filters[i * 4 + j] = new Matrix(vect[i], vect[j]);
+			        filters[(i << 2) + j] = new Matrix(vect[i], vect[j]);
         }
 
 
@@ -138,6 +138,7 @@ namespace LawsEnergyTexture
                     }*/
             _arrayProcessor.FiltrationProcess(exp_mass, ref filt_mass, filters, ce, Height, Width);
             ce = 7;
+
             //текстурные карты
             for (int z = 0; z < 15; z++)
             {
@@ -147,7 +148,8 @@ namespace LawsEnergyTexture
                 timer.Start();
                 exp_mass = _arrayProcessor.ImageExpansion(work_mass, ce, Height, Width);
                 timer.Stop();
-                for (int i = 0; i < Height; i++)
+
+                /*for (int i = 0; i < Height; i++)
                     for (int j = 0; j < Width; j++)
                     {
                         int sum = 0;
@@ -155,8 +157,10 @@ namespace LawsEnergyTexture
                             for (int x = -ce; x <= ce; x++)
                                 sum += Math.Abs(exp_mass[i + ce + y, j + ce + x]);
                         filt_mass[z][i, j] = sum;
-                    }
+                    }*/
+                _arrayProcessor.TextureMapProcess(exp_mass, ref filt_mass, z, ce, Height, Width);
             }
+
             var t = timer.ElapsedMilliseconds;
             int[] min = new int[9];
             for (int i = 0; i < 9; i++)

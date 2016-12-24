@@ -30,12 +30,13 @@
         {
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.button5 = new System.Windows.Forms.Button();
+            this.button4 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
-            this.button4 = new System.Windows.Forms.Button();
-            this.button5 = new System.Windows.Forms.Button();
+            this.timingLbl = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -51,6 +52,7 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.timingLbl);
             this.groupBox2.Controls.Add(this.button5);
             this.groupBox2.Controls.Add(this.button4);
             this.groupBox2.Controls.Add(this.button3);
@@ -62,6 +64,28 @@
             this.groupBox2.TabIndex = 18;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Управление";
+            // 
+            // button5
+            // 
+            this.button5.Location = new System.Drawing.Point(7, 77);
+            this.button5.Name = "button5";
+            this.button5.Size = new System.Drawing.Size(90, 23);
+            this.button5.TabIndex = 17;
+            this.button5.Text = "Объекты";
+            this.button5.UseVisualStyleBackColor = true;
+            this.button5.Visible = false;
+            this.button5.Click += new System.EventHandler(this.button5_Click);
+            // 
+            // button4
+            // 
+            this.button4.Enabled = false;
+            this.button4.Location = new System.Drawing.Point(6, 77);
+            this.button4.Name = "button4";
+            this.button4.Size = new System.Drawing.Size(90, 23);
+            this.button4.TabIndex = 16;
+            this.button4.Text = "Сегменты";
+            this.button4.UseVisualStyleBackColor = true;
+            this.button4.Click += new System.EventHandler(this.button4_Click);
             // 
             // button3
             // 
@@ -98,27 +122,14 @@
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
             // 
-            // button4
+            // timingLbl
             // 
-            this.button4.Enabled = false;
-            this.button4.Location = new System.Drawing.Point(6, 77);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(90, 23);
-            this.button4.TabIndex = 16;
-            this.button4.Text = "Сегменты";
-            this.button4.UseVisualStyleBackColor = true;
-            this.button4.Click += new System.EventHandler(this.button4_Click);
-            // 
-            // button5
-            // 
-            this.button5.Location = new System.Drawing.Point(7, 77);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(90, 23);
-            this.button5.TabIndex = 17;
-            this.button5.Text = "Объекты";
-            this.button5.UseVisualStyleBackColor = true;
-            this.button5.Visible = false;
-            this.button5.Click += new System.EventHandler(this.button5_Click);
+            this.timingLbl.AutoSize = true;
+            this.timingLbl.Location = new System.Drawing.Point(6, 114);
+            this.timingLbl.Name = "timingLbl";
+            this.timingLbl.Size = new System.Drawing.Size(30, 13);
+            this.timingLbl.TabIndex = 18;
+            this.timingLbl.Text = "Time";
             // 
             // Form1
             // 
@@ -131,6 +142,7 @@
             this.Text = "Вычисление энергетических текстурных характеристик Лавса";
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -146,6 +158,7 @@
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.Button button4;
         private System.Windows.Forms.Button button5;
+        private System.Windows.Forms.Label timingLbl;
     }
 }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -35,7 +36,11 @@ namespace LawsEnergyTexture
 
         private void button3_Click(object sender, EventArgs e)
         {
+            Stopwatch timer = new Stopwatch();
+            timer.Start();
             LawsEnergy.Сalculation();
+            timer.Stop();
+            timingLbl.Text = timer.ElapsedMilliseconds.ToString();
             //вывод для пользователя
             pictureBox1.Image = LawsEnergy.Image;
             button4.Enabled = true;
