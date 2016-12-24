@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
-using Laba4;
 
-namespace LaplaceEnergyTexture
+namespace LawsEnergyTexture
 {
     static class Program
     {

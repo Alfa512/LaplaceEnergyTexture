@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
-using LaplaceEnergyTexture;
 
-namespace Laba4
+namespace LawsEnergyTexture
 {
     public partial class Form1 : Form
     {
@@ -20,7 +19,7 @@ namespace Laba4
             try
             {
                 //данные изображения
-                LaplaceEnergy.Init(openFileDialog1.FileName);
+                LawsEnergy.Init(openFileDialog1.FileName);
                 //вывод для пользователя
                 pictureBox1.Image = Image.FromFile(openFileDialog1.FileName);
                 button3.Enabled = true;
@@ -36,16 +35,16 @@ namespace Laba4
 
         private void button3_Click(object sender, EventArgs e)
         {
-            LaplaceEnergy.Сalculation();
+            LawsEnergy.Сalculation();
             //вывод для пользователя
-            pictureBox1.Image = LaplaceEnergy.Image;
+            pictureBox1.Image = LawsEnergy.Image;
             button4.Enabled = true;
         }
 
         private void button4_Click(object sender, EventArgs e)
         {
             //вывод для пользователя
-            pictureBox1.Image = LaplaceEnergy.Temp_image;
+            pictureBox1.Image = LawsEnergy.Temp_image;
             button4.Visible = false;
             button5.Visible = true;
         }
@@ -53,7 +52,7 @@ namespace Laba4
         private void button5_Click(object sender, EventArgs e)
         {
             //вывод для пользователя
-            pictureBox1.Image = LaplaceEnergy.Image;
+            pictureBox1.Image = LawsEnergy.Image;
             button5.Visible = false;
             button4.Visible = true;
         }

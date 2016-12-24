@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LaplaceEnergyTexture", "Laba4\LaplaceEnergyTexture.csproj", "{3B452159-4E42-4B8B-919D-236597E1B86E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LawsEnergyTexture", "Laba4\LawsEnergyTexture.csproj", "{3B452159-4E42-4B8B-919D-236597E1B86E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

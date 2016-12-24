@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 
-namespace LaplaceEnergyTexture
+namespace LawsEnergyTexture
 {
     public unsafe struct ProcessTextureMapParams
     {

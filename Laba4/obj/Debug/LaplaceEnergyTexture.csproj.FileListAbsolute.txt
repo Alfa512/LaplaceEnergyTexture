@@ -1,1 +1,9 @@
 C:\Source\Repos\LaplaceEnergyTexture\Laba4\bin\Debug\LaplaceEnergyTexture.exe.config
+C:\Source\Repos\LaplaceEnergyTexture\Laba4\bin\Debug\LaplaceEnergyTexture.exe
+C:\Source\Repos\LaplaceEnergyTexture\Laba4\bin\Debug\LaplaceEnergyTexture.pdb
+C:\Source\Repos\LaplaceEnergyTexture\Laba4\obj\Debug\LaplaceEnergyTexture.csprojResolveAssemblyReference.cache
+C:\Source\Repos\LaplaceEnergyTexture\Laba4\obj\Debug\Laba4.Form1.resources
+C:\Source\Repos\LaplaceEnergyTexture\Laba4\obj\Debug\LaplaceEnergyTexture.Properties.Resources.resources
+C:\Source\Repos\LaplaceEnergyTexture\Laba4\obj\Debug\LaplaceEnergyTexture.csproj.GenerateResource.Cache
+C:\Source\Repos\LaplaceEnergyTexture\Laba4\obj\Debug\LaplaceEnergyTexture.exe
+C:\Source\Repos\LaplaceEnergyTexture\Laba4\obj\Debug\LaplaceEnergyTexture.pdb

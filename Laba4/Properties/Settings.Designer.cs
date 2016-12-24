@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace LaplaceEnergyTexture.Properties {
+namespace LawsEnergyTexture.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]

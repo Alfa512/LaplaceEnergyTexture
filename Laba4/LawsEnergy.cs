@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using Laba4;
 
 // compile with: /unsafe
 
-namespace LaplaceEnergyTexture
+namespace LawsEnergyTexture
 {
-    public static unsafe class LaplaceEnergy
+    public static unsafe class LawsEnergy
     {
         static Stopwatch timer = new Stopwatch();
 

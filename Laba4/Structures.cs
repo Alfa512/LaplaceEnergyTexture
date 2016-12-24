@@ -1,4 +1,4 @@
-﻿namespace LaplaceEnergyTexture
+﻿namespace LawsEnergyTexture
 {
     public class Matrix
     {

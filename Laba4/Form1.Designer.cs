@@ -1,4 +1,4 @@
-﻿namespace Laba4
+﻿namespace LawsEnergyTexture
 {
     partial class Form1
     {

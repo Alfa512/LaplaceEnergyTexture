@@ -7,8 +7,8 @@
     <ProjectGuid>{3B452159-4E42-4B8B-919D-236597E1B86E}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>LaplaceEnergyTexture</RootNamespace>
-    <AssemblyName>LaplaceEnergyTexture</AssemblyName>
+    <RootNamespace>LawsEnergyTexture</RootNamespace>
+    <AssemblyName>LawsEnergyTexture</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -52,7 +52,7 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
-    <Compile Include="LaplaceEnergy.cs" />
+    <Compile Include="LawsEnergy.cs" />
     <Compile Include="Structures.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
