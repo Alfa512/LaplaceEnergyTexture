@@ -28,11 +28,14 @@ namespace LawsEnergyTexture
         //коэффициенты для полутона
         static readonly double rCoeff = 0.299, gCoeff = 0.587, bCoeff = 0.114;
 
+        static readonly double brightCoef = 2.5;
+
         public static Bitmap Image
         {
             get { return _image; }
             set { _image = value; }
         }
+
         public static Bitmap Temp_image
         {
             get { return _tempImage; }
@@ -62,7 +65,7 @@ namespace LawsEnergyTexture
                 {
                     //обрабатываем цвет пикселя
                     Color color = _image.GetPixel(i, j);
-                    int newColor = (int)(rCoeff * color.R + gCoeff * color.G + bCoeff * color.B);
+                    int newColor = (int)Math.Round(rCoeff * color.R + gCoeff * color.G + bCoeff * color.B);
                     //для массива
                     _workArray[j, i] = newColor;
                 }
@@ -94,20 +97,20 @@ namespace LawsEnergyTexture
 
         public static void Processing()
         {
-            int ce = 7;
-            int[,] expMass = _arrayProcessor.ImageExpansion(_workArray, ce, Height, Width);
+            int expPixels = 7;
+            int[,] expMass = _arrayProcessor.ImageExpansion(_workArray, expPixels, Height, Width);
 
-            _arrayProcessor.PreHandlingProcess(expMass, ref _workArray, ce, Height, Width);
-            ce = 2;
-            expMass = _arrayProcessor.ImageExpansion(_workArray, ce, Height, Width);
-            _arrayProcessor.FiltrationProcess(expMass, ref _filtArray, Filters, ce, Height, Width);
-            ce = 7;
+            _arrayProcessor.PreHandlingProcess(expMass, ref _workArray, expPixels, Height, Width);
+            expPixels = 2;
+            expMass = _arrayProcessor.ImageExpansion(_workArray, expPixels, Height, Width);
+            _arrayProcessor.FiltrationProcess(expMass, ref _filtArray, Filters, expPixels, Height, Width);
+            expPixels = 7;
 
             for (int z = 0; z < 15; z++)
             {
-                expMass = _arrayProcessor.ImageExpansion(_workArray, ce, Height, Width);
+                expMass = _arrayProcessor.ImageExpansion(_workArray, expPixels, Height, Width);
 
-                _arrayProcessor.TextureMapProcess(expMass, ref _filtArray, z, ce, Height, Width);
+                _arrayProcessor.TextureMapProcess(expMass, ref _filtArray, z, expPixels, Height, Width);
             }
 
             int[] min = new int[9];
@@ -180,11 +183,12 @@ namespace LawsEnergyTexture
                 Coef[i] = 1.0 / (max[i] - min[i]);
 
             List<Segment> seg = new List<Segment>();
-            byte r = 0;
-            byte g = 0;
-            byte b = 0;
+            int r = 0;
+            int g = 0;
+            int b = 0;
             seg.Add(new Segment(0, 0, r, g, b));
-            _image.SetPixel(0, 0, Color.FromArgb(r, g, b));
+            _image.SetPixel(0, 0, Color.FromArgb(255, r, g, b));
+            
             r += 5;
             for (int i = 0; i < Height; i++)
                 for (int j = 0; j < Width; j++)
@@ -194,16 +198,16 @@ namespace LawsEnergyTexture
                         if (Euclidean_dist(i, j, seg[z].Y, seg[z].X) < 0.05)
                         {
                             newClass = false;
-                            _tempImage.SetPixel(j, i, Color.FromArgb(seg[z].R, seg[z].G, seg[z].B));
+                            _tempImage.SetPixel(j, i, Color.FromArgb((int)(seg[z].R * brightCoef) > 255 ? 255 : (int)(seg[z].R * brightCoef), (int)(seg[z].G * brightCoef) > 255 ? 255 : (int)(seg[z].G * brightCoef), (int)(seg[z].B + brightCoef) > 255 ? 255 : (int)(seg[z].B * brightCoef)));
                             break;
                         }
                     if (newClass)
                     {
                         seg.Add(new Segment(j, i, r, g, b));
                         _tempImage.SetPixel(j, i, Color.FromArgb(r, g, b));
-                        if (r < 254)
+                        if (r < 250)
                             r += 5;
-                        else if (g < 254)
+                        else if (g < 250)
                         {
                             r = 0;
                             g += 5;

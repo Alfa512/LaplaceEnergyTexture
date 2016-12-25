@@ -11,7 +11,7 @@
                     matrix[i, j] = v1.vect[i] * v2.vect[j];
         }
 
-        public int FindeValue(int[,] mass, int x, int y)
+        public int FindItem(int[,] mass, int x, int y)
         {
             int val = 0;
             for (int i = 0; i < 5; i++)

@@ -5,6 +5,7 @@ namespace LawsEnergyTexture
 {
     public unsafe struct ProcessTextureMapParams
     {
+        public int Number;
         public int[][,] FiltMass;
         public int StartHeight;
         public int EndHeight;
@@ -18,6 +19,7 @@ namespace LawsEnergyTexture
 
         public ProcessTextureMapParams(ProcessTextureMapParams parameters)
         {
+            Number = parameters.Number;
             FiltMass = parameters.FiltMass;
             StartHeight = parameters.StartHeight;
             EndHeight = parameters.EndHeight;
@@ -29,8 +31,9 @@ namespace LawsEnergyTexture
             Mapf = parameters.Mapf;
             Maps = parameters.Maps;
         }
-        public ProcessTextureMapParams(int[][,] filtMass, int startHeight, int endHeight, int startWidth, int endWidth, int z, int* min, int* max, int mapf, int maps)
+        public ProcessTextureMapParams(int number, int[][,] filtMass, int startHeight, int endHeight, int startWidth, int endWidth, int z, int* min, int* max, int mapf, int maps)
         {
+            Number = number;
             FiltMass = filtMass;
             StartHeight = startHeight;
             EndHeight = endHeight;
@@ -46,9 +49,7 @@ namespace LawsEnergyTexture
 
     unsafe class ArrayProcessor
     {
-
-
-        public int ThreadCount = 2;
+        public int ThreadCount;
         int[][,] _energyMaps;
         int[][,] _filtArray;
         int[,] _expanArray;
@@ -57,6 +58,8 @@ namespace LawsEnergyTexture
         int[,] _workArray;
         int[,] _workArrayPre;
         Matrix[] _filters;
+        int[] _minArray;
+        int[] _maxArray;
 
 
         public ArrayProcessor(int threadCount)
@@ -67,9 +70,10 @@ namespace LawsEnergyTexture
         public void ProcessTextureMap(ref int[][,] energyMaps, int[][,] filtMass, int height, int width, int z, int* min, int* max, int mapf, int maps)
         {
             Thread[] threads = new Thread[ThreadCount];
-
+            _minArray = new int[ThreadCount];
+            _maxArray = new int[ThreadCount];
             string name = "ProcessTextureMap_";
-            ProcessTextureMapParams parameters = new ProcessTextureMapParams(filtMass, 0, 0, height, width, z, min, max, mapf, maps);
+            ProcessTextureMapParams parameters = new ProcessTextureMapParams(0, filtMass, 0, 0, height, width, z, min, max, mapf, maps);
             _energyMaps = energyMaps;
             for (int i = 0; i < ThreadCount; i++)
             {
@@ -78,7 +82,9 @@ namespace LawsEnergyTexture
                 else
                     threads[i] = new Thread(ProcessArray);
                 threads[i].Name = name + i;
-
+                _minArray[i] = *min;
+                _maxArray[i] = *max;
+                parameters.Number = i;
                 parameters.StartHeight = height / ThreadCount * i;
                 parameters.EndHeight = height / ThreadCount * i + height / ThreadCount;
                 if (i + 1 == ThreadCount && height % ThreadCount > 0)
@@ -94,21 +100,33 @@ namespace LawsEnergyTexture
             foreach (var e in threads)
                 e.Join();
 
+            foreach (var val in _minArray)
+            {
+                if (val < *min)
+                    *min = val;
+            }
+            foreach (var val in _maxArray)
+            {
+                if (val > *max)
+                    *max = val;
+            }
+
             energyMaps = _energyMaps;
         }
 
-        public void ImageExpansionProcess(out int[,] expanMass, ref int[,] workMass, int ce, int height, int width)
+        public void ImageExpansionProcess(out int[,] expanMass, ref int[,] workMass, int expPixels, int height, int width)
         {
             Thread[] threads = new Thread[ThreadCount];
 
             string name = "ProcessTextureMap_";
-            ProcessTextureMapParams parameters = new ProcessTextureMapParams(null, 0, 0, height, width, ce, null, null, 0, 0);
+            ProcessTextureMapParams parameters = new ProcessTextureMapParams(0, null, 0, 0, height, width, expPixels, null, null, 0, 0);
             _workArray = workMass;
             for (int i = 0; i < ThreadCount; i++)
             {
                 threads[i] = new Thread(ImageExpansion);
                 threads[i].Name = name + i;
 
+                parameters.Number = i;
                 parameters.StartHeight = height / ThreadCount * i;
                 parameters.EndHeight = height / ThreadCount * i + height / ThreadCount;
                 if (i + 1 == ThreadCount && height % ThreadCount > 0)
@@ -127,19 +145,20 @@ namespace LawsEnergyTexture
             expanMass = _expanArray;
         }
 
-        public void PreHandlingProcess(int[,] expanArray, ref int[,] workMass, int ce, int height, int width) 
+        public void PreHandlingProcess(int[,] expanArray, ref int[,] workMass, int expPixels, int height, int width)
         {
             Thread[] threads = new Thread[ThreadCount];
 
             string name = "ProcessTextureMap_";
-            ProcessTextureMapParams parameters = new ProcessTextureMapParams(null, 0, 0, height, width, ce, null, null, 0, 0);
-            _expanArrayPre= expanArray;
+            ProcessTextureMapParams parameters = new ProcessTextureMapParams(0, null, 0, 0, height, width, expPixels, null, null, 0, 0);
+            _expanArrayPre = expanArray;
             _workArrayPre = workMass;
             for (int i = 0; i < ThreadCount; i++)
             {
                 threads[i] = new Thread(PreHandling);
                 threads[i].Name = name + i;
 
+                parameters.Number = i;
                 parameters.StartHeight = height / ThreadCount * i;
                 parameters.EndHeight = height / ThreadCount * i + height / ThreadCount;
                 if (i + 1 == ThreadCount && height % ThreadCount > 0)
@@ -158,20 +177,21 @@ namespace LawsEnergyTexture
             workMass = _workArrayPre;
         }
 
-        public void FiltrationProcess(int[,] expanArrayFilter, ref int[][,] filt_mass, Matrix[] filters, int ce, int height, int width)
+        public void FiltrationProcess(int[,] expanArrayFilter, ref int[][,] filtMass, Matrix[] filters, int expPixels, int height, int width)
         {
             Thread[] threads = new Thread[ThreadCount];
 
             string name = "ProcessTextureMap_";
-            ProcessTextureMapParams parameters = new ProcessTextureMapParams(null, 0, 0, height, width, ce, null, null, 0, 0);
+            ProcessTextureMapParams parameters = new ProcessTextureMapParams(0, null, 0, 0, height, width, expPixels, null, null, 0, 0);
             _expanArrayFilter = expanArrayFilter;
-            _filtArray= filt_mass;
+            _filtArray = filtMass;
             _filters = filters;
             for (int i = 0; i < ThreadCount; i++)
             {
                 threads[i] = new Thread(Filtration);
                 threads[i].Name = name + i;
 
+                parameters.Number = i;
                 parameters.StartHeight = height / ThreadCount * i;
                 parameters.EndHeight = height / ThreadCount * i + height / ThreadCount;
                 if (i + 1 == ThreadCount && height % ThreadCount > 0)
@@ -187,22 +207,23 @@ namespace LawsEnergyTexture
             foreach (var e in threads)
                 e.Join();
 
-            filt_mass = _filtArray;
+            filtMass = _filtArray;
         }
 
-        public void TextureMapProcess(int[,] expanArrayFilter, ref int[][,] filtMass, int z, int ce, int height, int width)
+        public void TextureMapProcess(int[,] expanArrayFilter, ref int[][,] filtMass, int z, int expPixels, int height, int width)
         {
             Thread[] threads = new Thread[ThreadCount];
 
             string name = "ProcessTextureMap_";
-            ProcessTextureMapParams parameters = new ProcessTextureMapParams(null, 0, 0, height, width, z, null, null, ce, 0);
+            ProcessTextureMapParams parameters = new ProcessTextureMapParams(0, null, 0, 0, height, width, z, null, null, expPixels, 0);
             _expanArrayFilter = expanArrayFilter;
-            _filtArray= filtMass;
+            _filtArray = filtMass;
             for (int i = 0; i < ThreadCount; i++)
             {
                 threads[i] = new Thread(TextureMap);
                 threads[i].Name = name + i;
 
+                parameters.Number = i;
                 parameters.StartHeight = height / ThreadCount * i;
                 parameters.EndHeight = height / ThreadCount * i + height / ThreadCount;
                 if (i + 1 == ThreadCount && height % ThreadCount > 0)
@@ -228,10 +249,10 @@ namespace LawsEnergyTexture
                 for (int j = data.StartWidth; j < data.EndWidth; j++)
                 {
                     _energyMaps[data.Z][i, j] = (data.FiltMass[data.Mapf][i, j] + (data.FiltMass[data.Maps][i, j]) >> 1);
-                    if (_energyMaps[data.Z][i, j] < *data.Min)
-                        *data.Min = _energyMaps[data.Z][i, j];
-                    if (_energyMaps[data.Z][i, j] > *data.Max)
-                        *data.Max = _energyMaps[data.Z][i, j];
+                    if (_energyMaps[data.Z][i, j] < _minArray[data.Number])
+                        _minArray[data.Number] = _energyMaps[data.Z][i, j];
+                    if (_energyMaps[data.Z][i, j] > _maxArray[data.Number])
+                        _maxArray[data.Number] = _energyMaps[data.Z][i, j];
                 }
 
         }
@@ -243,10 +264,10 @@ namespace LawsEnergyTexture
                 for (int j = data.StartWidth; j < data.EndWidth; j++)
                 {
                     _energyMaps[data.Z][i, j] = (data.FiltMass[data.Mapf][i, j]) >> 1;
-                    if (_energyMaps[data.Z][i, j] < *data.Min)
-                        *data.Min = _energyMaps[data.Z][i, j];
-                    if (_energyMaps[data.Z][i, j] > *data.Max)
-                        *data.Max = _energyMaps[data.Z][i, j];
+                    if (_energyMaps[data.Z][i, j] < _minArray[data.Number])
+                        _minArray[data.Number] = _energyMaps[data.Z][i, j];
+                    if (_energyMaps[data.Z][i, j] > _maxArray[data.Number])
+                        _maxArray[data.Number] = _energyMaps[data.Z][i, j];
                 }
 
         }
@@ -306,56 +327,56 @@ namespace LawsEnergyTexture
                 }
         }
 
-        public int[,] ImageExpansion(int[,] work_mass, int ce, int Height, int Width)
+        public int[,] ImageExpansion(int[,] workMass, int expPixels, int height, int width)
         {
-            int[,] expanMass = new int[Height + (ce << 1), Width + (ce << 1)];
-            for (int i = 0; i < Width; i++)
-                for (int j = 0; j < Height; j++)
+            int[,] expanMass = new int[height + (expPixels << 1), width + (expPixels << 1)];
+            for (int i = 0; i < width; i++)
+                for (int j = 0; j < height; j++)
                 {
-                    expanMass[j + ce, i + ce] = work_mass[j, i];
+                    expanMass[j + expPixels, i + expPixels] = workMass[j, i];
                     if (i == 0)
                     {
-                        for (int z = 0; z < ce; z++)
-                            expanMass[j + ce, i + z] = work_mass[j, i];
+                        for (int z = 0; z < expPixels; z++)
+                            expanMass[j + expPixels, i + z] = workMass[j, i];
                         if (j == 0)
                         {
-                            for (int z = 0; z < ce; z++)
-                                for (int x = 0; x < ce; x++)
-                                    expanMass[j + x, i + z] = work_mass[j, i];
+                            for (int z = 0; z < expPixels; z++)
+                                for (int x = 0; x < expPixels; x++)
+                                    expanMass[j + x, i + z] = workMass[j, i];
                         }
-                        if (j == Height - 1)
+                        if (j == height - 1)
                         {
-                            for (int z = 0; z < ce; z++)
-                                for (int x = 1; x <= ce; x++)
-                                    expanMass[j + ce + x, i + z] = work_mass[j, i];
+                            for (int z = 0; z < expPixels; z++)
+                                for (int x = 1; x <= expPixels; x++)
+                                    expanMass[j + expPixels + x, i + z] = workMass[j, i];
                         }
                     }
-                    if (i == Width - 1)
+                    if (i == width - 1)
                     {
-                        for (int z = 1; z <= ce; z++)
-                            expanMass[j + ce, i + ce + z] = work_mass[j, i];
+                        for (int z = 1; z <= expPixels; z++)
+                            expanMass[j + expPixels, i + expPixels + z] = workMass[j, i];
                         if (j == 0)
                         {
-                            for (int z = 1; z <= ce; z++)
-                                for (int x = 0; x < ce; x++)
-                                    expanMass[j + x, i + ce + z] = work_mass[j, i];
+                            for (int z = 1; z <= expPixels; z++)
+                                for (int x = 0; x < expPixels; x++)
+                                    expanMass[j + x, i + expPixels + z] = workMass[j, i];
                         }
-                        if (j == Height - 1)
+                        if (j == height - 1)
                         {
-                            for (int z = 1; z <= ce; z++)
-                                for (int x = 1; x <= ce; x++)
-                                    expanMass[j + ce + x, i + ce + z] = work_mass[j, i];
+                            for (int z = 1; z <= expPixels; z++)
+                                for (int x = 1; x <= expPixels; x++)
+                                    expanMass[j + expPixels + x, i + expPixels + z] = workMass[j, i];
                         }
                     }
                     if (j == 0)
                     {
-                        for (int z = 0; z < ce; z++)
-                            expanMass[j + z, i + ce] = work_mass[j, i];
+                        for (int z = 0; z < expPixels; z++)
+                            expanMass[j + z, i + expPixels] = workMass[j, i];
                     }
-                    if (j == Height - 1)
+                    if (j == height - 1)
                     {
-                        for (int z = 1; z <= ce; z++)
-                            expanMass[j + ce + z, i + ce] = work_mass[j, i];
+                        for (int z = 1; z <= expPixels; z++)
+                            expanMass[j + expPixels + z, i + expPixels] = workMass[j, i];
                     }
                 }
             return expanMass;
@@ -383,7 +404,7 @@ namespace LawsEnergyTexture
                 for (int j = data.StartWidth; j < data.EndWidth; j++)
                     for (int z = 0; z < 15; z++)
                     {
-                        _filtArray[z][i, j] = _filters[z + 1].FindeValue(_expanArrayFilter, j + data.Z, i + data.Z);
+                        _filtArray[z][i, j] = _filters[z + 1].FindItem(_expanArrayFilter, j + data.Z, i + data.Z);
                     }
         }
 
