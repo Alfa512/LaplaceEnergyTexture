@@ -25,8 +25,6 @@ namespace LawsEnergyTexture
         static readonly Vectors[] Vect = new Vectors[4];
         //коэффициенты
         static readonly double[] Coef = new double[9];
-        //коэффициенты для полутона
-        static readonly double rCoeff = 0.299, gCoeff = 0.587, bCoeff = 0.114;
 
         static readonly double brightCoef = 2.5;
 
@@ -59,8 +57,9 @@ namespace LawsEnergyTexture
             Height = _image.Height;
             //создаем рабочий массив
             _workArray = new int[Height, Width];
+            _arrayProcessor.GetImageColorProcess(ref _workArray, _image, Height, Width);
             //по всему изображению
-            for (int i = 0; i < Width; i++)
+            /*for (int i = 0; i < Width; i++)
                 for (int j = 0; j < Height; j++)
                 {
                     //обрабатываем цвет пикселя
@@ -68,7 +67,7 @@ namespace LawsEnergyTexture
                     int newColor = (int)Math.Round(rCoeff * color.R + gCoeff * color.G + bCoeff * color.B);
                     //для массива
                     _workArray[j, i] = newColor;
-                }
+                }*/
             //инициируем
             for (int i = 0; i < 15; i++)
                 _filtArray[i] = new int[Height, Width];

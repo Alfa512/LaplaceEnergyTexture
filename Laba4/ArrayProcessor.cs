@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.Threading;
 
 namespace LawsEnergyTexture
@@ -60,13 +61,52 @@ namespace LawsEnergyTexture
         Matrix[] _filters;
         int[] _minArray;
         int[] _maxArray;
-
+        Bitmap[] _image;
+        readonly double rCoeff = 0.299, gCoeff = 0.587, bCoeff = 0.114;
 
         public ArrayProcessor(int threadCount)
         {
             ThreadCount = threadCount;
         }
 
+        public void GetImageColorProcess(ref int[,] workArray, Bitmap image, int height, int width)
+        {
+            Thread[] threads = new Thread[ThreadCount];
+            string name = "ProcessTextureMap_";
+            ProcessTextureMapParams parameters = new ProcessTextureMapParams(0, null, 0, 0, height, width, 0, null, null, 0, 0);
+            _workArray = workArray;
+            _image = new Bitmap[ThreadCount];
+            //_image = image;
+            for (int i = 0; i < ThreadCount; i++)
+            {
+                threads[i] = new Thread(GetImageColor);
+                threads[i].Name = name + i;
+
+                parameters.Number = i;
+                parameters.StartHeight = height / ThreadCount * i;
+                parameters.EndHeight = height / ThreadCount * i + height / ThreadCount;
+                if (i + 1 == ThreadCount && height % ThreadCount > 0)
+                    parameters.EndHeight = height / ThreadCount * i + height / ThreadCount + height % ThreadCount;
+
+                parameters.StartWidth = 0;
+                parameters.EndWidth = width;
+                if (i + 1 == ThreadCount && width % ThreadCount > 0)
+                    parameters.EndWidth = width / ThreadCount * i + width / ThreadCount + width % ThreadCount;
+
+                //_image[i] = new Bitmap(parameters.EndWidth - parameters.StartWidth, parameters.EndHeight - parameters.StartHeight);
+                _image[i] =
+                    image.Clone(
+                        new Rectangle(parameters.StartWidth, parameters.StartHeight,
+                            parameters.EndWidth - parameters.StartWidth, parameters.EndHeight - parameters.StartHeight), image.PixelFormat
+                        );
+
+                threads[i].Start(parameters);
+            }
+            foreach (var e in threads)
+                e.Join();
+
+            workArray = _workArray;
+        }
         public void ProcessTextureMap(ref int[][,] energyMaps, int[][,] filtMass, int height, int width, int z, int* min, int* max, int mapf, int maps)
         {
             Thread[] threads = new Thread[ThreadCount];
@@ -240,6 +280,20 @@ namespace LawsEnergyTexture
                 e.Join();
 
             filtMass = _filtArray;
+        }
+
+        void GetImageColor(object parameters)
+        {
+            var data = new ProcessTextureMapParams((ProcessTextureMapParams)parameters);
+            for (int i = data.StartWidth, k = 0; i < data.EndWidth; i++, k++)
+                for (int j = data.StartHeight, l = 0; j < data.EndHeight; j++, l++)
+                {
+                    //обрабатываем цвет пикселя
+                    Color color = _image[data.Number].GetPixel(k, l);
+                    int newColor = (int)Math.Round(rCoeff * color.R + gCoeff * color.G + bCoeff * color.B);
+                    //для массива
+                    _workArray[j, i] = newColor;
+                }
         }
 
         void ProcessArray(object parameters)
